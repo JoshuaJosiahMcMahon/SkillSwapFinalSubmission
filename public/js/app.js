@@ -1,4 +1,26 @@
 const API_BASE = '/api';
+const NOTIFICATION_PREFS_KEY = 'skillswap_notification_prefs';
+
+function getNotificationPrefs() {
+    try {
+        const prefs = localStorage.getItem(NOTIFICATION_PREFS_KEY);
+        return prefs ? JSON.parse(prefs) : {
+            sessionRequests: true,
+            sessionStatus: true,
+            messages: true,
+            reviews: true,
+            announcements: true
+        };
+    } catch (e) {
+        return {
+            sessionRequests: true,
+            sessionStatus: true,
+            messages: true,
+            reviews: true,
+            announcements: true
+        };
+    }
+}
 
 function getCookie(name) {
     const value = `; ${document.cookie}`;
@@ -115,31 +137,42 @@ async function updateNav() {
         try {
             const { data } = await apiCall('/dashboard');
             const isAdmin = data.user?.isAdmin || false;
+            const prefs = getNotificationPrefs();
 
             let unreadCount = 0;
             let sessionCount = 0;
             
-            try {
-                const { data: msgData } = await apiCall('/messages/unread-count');
-                if (msgData.count && msgData.count > 0) {
-                    unreadCount = msgData.count;
-                }
-            } catch (e) {}
+            // Only fetch message count if messages notifications are enabled
+            if (prefs.messages) {
+                try {
+                    const { data: msgData } = await apiCall('/messages/unread-count');
+                    if (msgData.count && msgData.count > 0) {
+                        unreadCount = msgData.count;
+                    }
+                } catch (e) {}
+            }
 
-            try {
-                const { data: sessionData } = await apiCall('/sessions/notification-count');
-                if (sessionData.count && sessionData.count > 0) {
-                    sessionCount = sessionData.count;
-                }
-            } catch (e) {}
+            // Only fetch session count if session notifications are enabled
+            if (prefs.sessionRequests || prefs.sessionStatus) {
+                try {
+                    const { data: sessionData } = await apiCall('/sessions/notification-count');
+                    if (sessionData.count && sessionData.count > 0) {
+                        sessionCount = sessionData.count;
+                    }
+                } catch (e) {}
+            }
 
             const badgeStyle = 'border-radius: 12px; padding: 0.125rem 0.5rem; font-size: 0.75rem; font-weight: bold; margin-left: 4px;';
             
+            // Only show badges if respective notifications are enabled
+            const showSessionBadge = (prefs.sessionRequests || prefs.sessionStatus) && sessionCount > 0;
+            const showMessageBadge = prefs.messages && unreadCount > 0;
+            
             navLinks.innerHTML = `
-                <li><a href="/dashboard.html">Dashboard <span id="nav-session-badge" style="background: var(--warning); color: white; ${badgeStyle} display: ${sessionCount > 0 ? 'inline' : 'none'};">${sessionCount}</span></a></li>
+                <li><a href="/dashboard.html">Dashboard <span id="nav-session-badge" style="background: var(--warning); color: white; ${badgeStyle} display: ${showSessionBadge ? 'inline' : 'none'};">${sessionCount}</span></a></li>
                 <li><a href="/search.html">Search Tutors</a></li>
                 <li><a href="/profile.html">My Profile</a></li>
-                <li><a href="/messages.html">Messages <span id="nav-message-badge" style="background: var(--danger); color: white; ${badgeStyle} display: ${unreadCount > 0 ? 'inline' : 'none'};">${unreadCount}</span></a></li>
+                <li><a href="/messages.html">Messages <span id="nav-message-badge" style="background: var(--danger); color: white; ${badgeStyle} display: ${showMessageBadge ? 'inline' : 'none'};">${unreadCount}</span></a></li>
                 ${isAdmin ? '<li><a href="/admin.html">Admin</a></li>' : ''}
                 <li><a href="#" onclick="logout()">Logout</a></li>
             `;
@@ -185,34 +218,48 @@ document.addEventListener('DOMContentLoaded', () => {
 async function updateNavBadges() {
     if (!isLoggedIn() || sessionInvalidated) return;
     
+    const prefs = getNotificationPrefs();
+    
     try {
         const sessionBadgeEl = document.getElementById('nav-session-badge');
         const messageBadgeEl = document.getElementById('nav-message-badge');
         
+        // Only update session badge if session notifications are enabled
         if (sessionBadgeEl && !sessionInvalidated) {
-            try {
-                const { data: sessionData, response } = await apiCall('/sessions/notification-count');
-                if (sessionInvalidated) return;
-                if (sessionData.count && sessionData.count > 0) {
-                    sessionBadgeEl.textContent = sessionData.count;
-                    sessionBadgeEl.style.display = 'inline';
-                } else {
-                    sessionBadgeEl.style.display = 'none';
-                }
-            } catch (e) {}
+            if (prefs.sessionRequests || prefs.sessionStatus) {
+                try {
+                    const { data: sessionData, response } = await apiCall('/sessions/notification-count');
+                    if (sessionInvalidated) return;
+                    if (sessionData.count && sessionData.count > 0) {
+                        sessionBadgeEl.textContent = sessionData.count;
+                        sessionBadgeEl.style.display = 'inline';
+                    } else {
+                        sessionBadgeEl.style.display = 'none';
+                    }
+                } catch (e) {}
+            } else {
+                // Notifications disabled - hide the badge
+                sessionBadgeEl.style.display = 'none';
+            }
         }
         
+        // Only update message badge if message notifications are enabled
         if (messageBadgeEl && !sessionInvalidated) {
-            try {
-                const { data: msgData, response } = await apiCall('/messages/unread-count');
-                if (sessionInvalidated) return;
-                if (msgData.count && msgData.count > 0) {
-                    messageBadgeEl.textContent = msgData.count;
-                    messageBadgeEl.style.display = 'inline';
-                } else {
-                    messageBadgeEl.style.display = 'none';
-                }
-            } catch (e) {}
+            if (prefs.messages) {
+                try {
+                    const { data: msgData, response } = await apiCall('/messages/unread-count');
+                    if (sessionInvalidated) return;
+                    if (msgData.count && msgData.count > 0) {
+                        messageBadgeEl.textContent = msgData.count;
+                        messageBadgeEl.style.display = 'inline';
+                    } else {
+                        messageBadgeEl.style.display = 'none';
+                    }
+                } catch (e) {}
+            } else {
+                // Notifications disabled - hide the badge
+                messageBadgeEl.style.display = 'none';
+            }
         }
     } catch (e) {}
 }
