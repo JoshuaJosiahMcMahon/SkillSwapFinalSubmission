@@ -136,6 +136,7 @@ async function updateNav() {
 
         try {
             const { data } = await apiCall('/dashboard');
+            if (!data) throw new Error('No data');
             const isAdmin = data.user?.isAdmin || false;
             const prefs = getNotificationPrefs();
 
@@ -146,7 +147,7 @@ async function updateNav() {
             if (prefs.messages) {
                 try {
                     const { data: msgData } = await apiCall('/messages/unread-count');
-                    if (msgData.count && msgData.count > 0) {
+                    if (msgData && msgData.count && msgData.count > 0) {
                         unreadCount = msgData.count;
                     }
                 } catch (e) {}
@@ -156,7 +157,7 @@ async function updateNav() {
             if (prefs.sessionRequests || prefs.sessionStatus) {
                 try {
                     const { data: sessionData } = await apiCall('/sessions/notification-count');
-                    if (sessionData.count && sessionData.count > 0) {
+                    if (sessionData && sessionData.count && sessionData.count > 0) {
                         sessionCount = sessionData.count;
                     }
                 } catch (e) {}
@@ -228,9 +229,9 @@ async function updateNavBadges() {
         if (sessionBadgeEl && !sessionInvalidated) {
             if (prefs.sessionRequests || prefs.sessionStatus) {
                 try {
-                    const { data: sessionData, response } = await apiCall('/sessions/notification-count');
+                    const { data: sessionData } = await apiCall('/sessions/notification-count');
                     if (sessionInvalidated) return;
-                    if (sessionData.count && sessionData.count > 0) {
+                    if (sessionData && sessionData.count && sessionData.count > 0) {
                         sessionBadgeEl.textContent = sessionData.count;
                         sessionBadgeEl.style.display = 'inline';
                     } else {
@@ -247,9 +248,9 @@ async function updateNavBadges() {
         if (messageBadgeEl && !sessionInvalidated) {
             if (prefs.messages) {
                 try {
-                    const { data: msgData, response } = await apiCall('/messages/unread-count');
+                    const { data: msgData } = await apiCall('/messages/unread-count');
                     if (sessionInvalidated) return;
-                    if (msgData.count && msgData.count > 0) {
+                    if (msgData && msgData.count && msgData.count > 0) {
                         messageBadgeEl.textContent = msgData.count;
                         messageBadgeEl.style.display = 'inline';
                     } else {
