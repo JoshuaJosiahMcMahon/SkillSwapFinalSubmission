@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Tutors - SkillSwap</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/" class="nav-brand">📚 SkillSwap</a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="/dashboard.html">Dashboard</a></li>
+                <li><a href="/search.html">Search Tutors</a></li>
+                <li><a href="#" onclick="logout()">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h1 style="margin-bottom: 2rem;">🔍 Search Tutors</h1>
+
+        <div class="card">
+            <h3 class="card-title">Search Filters</h3>
+            <form id="searchForm">
+                <div class="row">
+                    <div class="col-3">
+                        <div class="form-group">
+                            <label for="skillId" class="form-label">Skill</label>
+                            <select id="skillId" class="form-control">
+                                <option value="">All Skills</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="form-group">
+                            <label for="major" class="form-label">Degree</label>
+                            <select id="major" class="form-control">
+                                <option value="">All Degrees</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="form-group">
+                            <label for="blockName" class="form-label">Block Name</label>
+                            <select id="blockName" class="form-control">
+                                <option value="">All Blocks</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="form-group">
+                            <label for="yearOfStudy" class="form-label">Year of Study</label>
+                            <select id="yearOfStudy" class="form-control">
+                                <option value="">Any Year</option>
+                                <option value="1">Year 1</option>
+                                <option value="2">Year 2</option>
+                                <option value="3">Year 3</option>
+                                <option value="4">Year 4</option>
+                                <option value="5">Year 5</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Search</button>
+                <a href="/search.html" class="btn btn-secondary">Clear</a>
+            </form>
+            
+            <!-- Search History -->
+            <div id="searchHistoryContainer" style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--gray-200);"></div>
+        </div>
+
+        <div id="resultsContainer">
+            <div class="card">
+                <p style="text-align: center; color: var(--gray-600);">
+                    Use the filters above to search for tutors.
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Report Modal -->
+    <div id="reportModal" class="modal">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="margin: 0; color: var(--green-dark);">🚩 Report User</h2>
+                <button onclick="closeReportModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--gray-500);">&times;</button>
+            </div>
+            <div id="reportAlert"></div>
+            <form id="reportForm">
+                <input type="hidden" id="reportedUserId">
+                <div class="form-group">
+                    <label for="reportReason" class="form-label">Reason for Report</label>
+                    <select id="reportReason" class="form-control" required>
+                        <option value="">Select a reason...</option>
+                        <option value="Inappropriate Behavior">Inappropriate Behavior</option>
+                        <option value="Harassment">Harassment</option>
+                        <option value="Spam or Scam">Spam or Scam</option>
+                        <option value="False Information">False Information</option>
+                        <option value="No Show to Session">No Show to Session</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="reportDescription" class="form-label">Additional Details (Optional)</label>
+                    <textarea id="reportDescription" class="form-control" rows="4" placeholder="Please provide any additional information..."></textarea>
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" onclick="closeReportModal()" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Submit Report</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- View Ratings Modal -->
+    <div id="ratingsModal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="margin: 0; color: var(--green-dark);">⭐ Tutor Ratings</h2>
+                <button onclick="closeRatingsModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--gray-500);">&times;</button>
+            </div>
+            <div id="ratingsContent">
+                <p style="text-align: center; color: var(--gray-500); padding: 2rem;">Loading ratings...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Modal -->
+    <div id="bookingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Book Tutoring Session</h3>
+                <button class="modal-close" onclick="closeBookingModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="bookingAlert"></div>
+                <form id="bookingForm">
+                    <input type="hidden" id="bookingTutorId">
+                    <div class="form-group">
+                        <label for="bookingTutorEmail" class="form-label">Tutor</label>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <input type="text" id="bookingTutorEmail" class="form-control" readonly style="flex: 1; margin-right: 1rem;">
+                            <div id="tutorRatingDisplay" style="display: flex; align-items: center; gap: 0.5rem; min-width: 120px;">
+                                <span style="color: var(--gray-600); font-size: 0.875rem;">Loading...</span>
+                            </div>
+                        </div>
+                        <button type="button" onclick="viewTutorRatings()" class="btn btn-link" style="padding: 0.25rem 0; margin-top: 0.25rem; font-size: 0.875rem; text-decoration: underline;">
+                            View All Ratings
+                        </button>
+                    </div>
+                    <div class="form-group">
+                        <label for="bookingSkillId" class="form-label">Skill *</label>
+                        <select id="bookingSkillId" class="form-control" required>
+                            <option value="">Select a skill...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="bookingDateTime" class="form-label">Date & Time *</label>
+                        <input type="datetime-local" id="bookingDateTime" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bookingPointCost" class="form-label">Point Cost *</label>
+                        <input type="number" id="bookingPointCost" class="form-control" min="0" value="10" required>
+                        <small style="color: var(--gray-600); font-size: 0.875rem;">Points will be deducted from your balance when session is completed (0 = free session)</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeBookingModal()">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitBooking()">Book Session</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script src="/js/blocks.js"></script>
+    <script src="/js/search.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const blockSelect = document.getElementById('blockName');
+            if (blockSelect) {
+                // Keep "All Blocks" option and add block options
+                BLOCKS.forEach(block => {
+                    const option = document.createElement('option');
+                    option.value = block.value;
+                    option.textContent = block.label;
+                    blockSelect.appendChild(option);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
+

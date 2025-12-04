@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Banned - SkillSwap</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .banned-container {
+            max-width: 600px;
+            margin: 4rem auto;
+            text-align: center;
+            padding: 2rem;
+        }
+        .banned-icon {
+            font-size: 5rem;
+            margin-bottom: 1.5rem;
+        }
+        .banned-title {
+            font-size: 2rem;
+            color: var(--danger);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .banned-message {
+            background: var(--gray-100);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid var(--danger);
+            margin: 2rem 0;
+            text-align: left;
+        }
+        .ban-reason {
+            color: var(--gray-700);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        .contact-info {
+            margin-top: 2rem;
+            color: var(--gray-600);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/" class="nav-brand">📚 SkillSwap</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div class="banned-container">
+            <div class="banned-icon">🚫</div>
+            <h1 class="banned-title" style="text-align: center;">Account Banned</h1>
+            <p style="color: var(--gray-600); font-size: 1.125rem; margin-bottom: 2rem;">
+                Your account has been banned from using SkillSwap.
+            </p>
+            
+            <div class="banned-message">
+                <h3 style="color: var(--gray-900); margin-bottom: 1rem;">Reason for Ban:</h3>
+                <div id="banReason" class="ban-reason">
+                    Loading...
+                </div>
+            </div>
+
+            <div class="contact-info">
+                <p>If you believe this ban was issued in error, please contact the administrator.</p>
+            </div>
+
+            <div style="margin-top: 2rem;">
+                <button onclick="logout()" class="btn btn-secondary">Logout</button>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/app.js"></script>
+    <script>
+        // Get ban reason from URL parameter or fetch from API
+        async function loadBanReason() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const reason = urlParams.get('reason');
+            
+            if (reason) {
+                document.getElementById('banReason').textContent = decodeURIComponent(reason);
+            } else {
+                // Try to get from API
+                try {
+                    const { data } = await apiCall('/auth/check-ban');
+                    if (data.banned && data.reason) {
+                        document.getElementById('banReason').textContent = data.reason;
+                    } else {
+                        document.getElementById('banReason').textContent = 'No reason provided.';
+                    }
+                } catch (error) {
+                    document.getElementById('banReason').textContent = 'No reason provided.';
+                }
+            }
+        }
+
+        async function logout() {
+            await apiCall('/auth/logout', { method: 'POST' });
+            deleteCookie('sessionId');
+            window.location.href = '/index.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', loadBanReason);
+    </script>
+</body>
+</html>
+

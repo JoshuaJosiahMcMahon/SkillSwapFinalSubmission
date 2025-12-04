@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - SkillSwap</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/" class="nav-brand">📚 SkillSwap</a>
+            <ul class="nav-links">
+                <li><a href="/login.html">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div class="card" style="max-width: 550px; margin: 2rem auto; background: linear-gradient(135deg, var(--white) 0%, var(--green-bg) 100%);">
+            <h2 class="card-title" style="text-align: center; justify-content: center;">✨ Register</h2>
+            <div id="alertContainer"></div>
+            <form id="registerForm">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label for="firstName" class="form-label">First Name</label>
+                            <input type="text" id="firstName" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label for="lastName" class="form-label">Last Name</label>
+                            <input type="text" id="lastName" class="form-control" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" id="email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" id="password" class="form-control" minlength="6" required>
+                    <small style="color: var(--gray-600);">Must be at least 6 characters</small>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword" class="form-label">Confirm Password</label>
+                    <input type="password" id="confirmPassword" class="form-control" minlength="6" required>
+                </div>
+                <div class="form-group">
+                    <label for="blockName" class="form-label">Block Name</label>
+                    <select id="blockName" class="form-control" required>
+                        <option value="">Select a block...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="isTutor">
+                        <span>I want to be a tutor</span>
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label for="major" class="form-label">Degree (Optional)</label>
+                    <select id="major" class="form-control">
+                        <option value="">Select degree...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="yearOfStudy" class="form-label">Year of Study (Optional)</label>
+                    <select id="yearOfStudy" class="form-control">
+                        <option value="">Select year</option>
+                        <option value="1">Year 1</option>
+                        <option value="2">Year 2</option>
+                        <option value="3">Year 3</option>
+                        <option value="4">Year 4</option>
+                        <option value="5">Year 5</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="bio" class="form-label">Bio (Optional)</label>
+                    <textarea id="bio" class="form-control" rows="3" maxlength="500"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Register</button>
+            </form>
+            <p style="text-align: center; margin-top: 1rem;">
+                Already have an account? <a href="/login.html">Login here</a>
+            </p>
+        </div>
+    </main>
+
+    <script src="/js/app.js"></script>
+    <script src="/js/blocks.js"></script>
+    <script src="/js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            populateBlockSelect(document.getElementById('blockName'));
+        });
+    </script>
+</body>
+</html>
+

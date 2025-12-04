@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - SkillSwap</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .profile-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .profile-picture-container {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+        }
+        .profile-picture {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--green-primary);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            background: var(--gray-200);
+        }
+        .profile-picture-placeholder {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--green-primary) 0%, var(--green-dark) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: var(--white);
+            border: 4px solid var(--green-primary);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .upload-overlay {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: var(--green-primary);
+            color: var(--white);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+        .upload-overlay:hover {
+            background: var(--green-dark);
+            transform: scale(1.1);
+        }
+        .upload-overlay input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        .profile-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        .info-item {
+            padding: 1rem;
+            background: var(--green-bg);
+            border-radius: 12px;
+            border-left: 4px solid var(--green-primary);
+        }
+        .info-label {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        .info-value {
+            font-size: 1.125rem;
+            color: var(--gray-900);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/" class="nav-brand">📚 SkillSwap</a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="/dashboard.html">Dashboard</a></li>
+                <li><a href="/search.html">Search Tutors</a></li>
+                <li><a href="/profile.html">My Profile</a></li>
+                <li><a href="#" onclick="logout()">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h1 style="margin-bottom: 2rem;">👤 My Profile</h1>
+
+        <div id="alertContainer"></div>
+
+        <div class="card" style="background: linear-gradient(135deg, var(--white) 0%, var(--green-bg) 100%);">
+            <div class="profile-header">
+                <div class="profile-picture-container">
+                    <div id="profilePictureContainer">
+                        <img id="profilePicture" class="profile-picture hidden" alt="Profile Picture">
+                        <div id="profilePicturePlaceholder" class="profile-picture-placeholder">👤</div>
+                    </div>
+                    <div class="upload-overlay" title="Upload Profile Picture">
+                        <input type="file" id="profilePictureInput" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp">
+                        <span>📷</span>
+                    </div>
+                </div>
+                <h2 id="userEmail" style="color: var(--green-dark); margin-bottom: 0.5rem;">-</h2>
+                <p id="userBlock" style="color: var(--gray-600);">-</p>
+            </div>
+
+            <div class="profile-info" style="margin-top: 2rem;">
+                <div class="info-item">
+                    <div class="info-label">Email</div>
+                    <div class="info-value" id="displayEmail">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Block</div>
+                    <div class="info-value" id="displayBlock">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Points Balance</div>
+                    <div class="info-value" id="displayPoints">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Account Type</div>
+                    <div class="info-value" id="displayAccountType">-</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 class="card-title">📝 Profile Details</h3>
+            <form id="profileForm">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label for="firstName" class="form-label">First Name</label>
+                            <input type="text" id="firstName" class="form-control" placeholder="First Name">
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label for="lastName" class="form-label">Last Name</label>
+                            <input type="text" id="lastName" class="form-control" placeholder="Last Name">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top: -1rem; margin-bottom: 1.5rem;">
+                    <small id="nameHelp" class="form-text text-muted" style="display: none; color: var(--gray-600); font-size: 0.8rem;">
+                        You can only change your name once.
+                    </small>
+                </div>
+                <div class="form-group">
+                    <label for="bio" class="form-label">Bio</label>
+                    <textarea id="bio" class="form-control" rows="4" placeholder="Tell us about yourself..."></textarea>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label for="blockName" class="form-label">Block Name</label>
+                            <select id="blockName" class="form-control" required>
+                                <option value="">Select a block...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label for="major" class="form-label">Degree</label>
+                            <select id="major" class="form-control">
+                                <option value="">Select degree...</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label for="yearOfStudy" class="form-label">Year of Study</label>
+                            <select id="yearOfStudy" class="form-control">
+                                <option value="">Select year...</option>
+                                <option value="1">Year 1</option>
+                                <option value="2">Year 2</option>
+                                <option value="3">Year 3</option>
+                                <option value="4">Year 4</option>
+                                <option value="5">Year 5</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div id="tutorSkillsSection" style="display: none; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--gray-200);">
+                    <h4 style="margin-bottom: 1rem; color: var(--green-dark);">📚 My Skills (Tutor)</h4>
+                    <div class="form-group">
+                        <label class="form-label">Add New Skill</label>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <select id="skillSelect" class="form-control">
+                                <option value="">Select a skill to add...</option>
+                            </select>
+                            <button type="button" class="btn btn-secondary" onclick="addSkill()">Add</button>
+                        </div>
+                    </div>
+                    <div id="mySkillsList" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem;">
+                        <!-- Skills will be populated here -->
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="margin-top: 1.5rem;">Save Profile</button>
+            </form>
+        </div>
+
+        <!-- Notification Preferences -->
+        <div class="card">
+            <h3 class="card-title">🔔 Notification Preferences</h3>
+            <p style="color: var(--gray-600); margin-bottom: 1.5rem;">Choose which notifications you want to receive.</p>
+            
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; padding: 1rem; background: var(--green-bg); border-radius: 8px;">
+                    <input type="checkbox" id="notifSessionRequests" checked onchange="saveNotificationPrefs()" style="width: 20px; height: 20px; cursor: pointer;">
+                    <div>
+                        <strong style="color: var(--green-dark);">Session Requests</strong>
+                        <p style="margin: 0; color: var(--gray-600); font-size: 0.875rem;">Get notified when someone requests a session with you</p>
+                    </div>
+                </label>
+                
+                <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; padding: 1rem; background: var(--green-bg); border-radius: 8px;">
+                    <input type="checkbox" id="notifSessionStatus" checked onchange="saveNotificationPrefs()" style="width: 20px; height: 20px; cursor: pointer;">
+                    <div>
+                        <strong style="color: var(--green-dark);">Session Status Changes</strong>
+                        <p style="margin: 0; color: var(--gray-600); font-size: 0.875rem;">Get notified when a session is accepted, declined, or cancelled</p>
+                    </div>
+                </label>
+                
+                <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; padding: 1rem; background: var(--green-bg); border-radius: 8px;">
+                    <input type="checkbox" id="notifMessages" checked onchange="saveNotificationPrefs()" style="width: 20px; height: 20px; cursor: pointer;">
+                    <div>
+                        <strong style="color: var(--green-dark);">New Messages</strong>
+                        <p style="margin: 0; color: var(--gray-600); font-size: 0.875rem;">Get notified when you receive a new message</p>
+                    </div>
+                </label>
+                
+                <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; padding: 1rem; background: var(--green-bg); border-radius: 8px;">
+                    <input type="checkbox" id="notifReviews" checked onchange="saveNotificationPrefs()" style="width: 20px; height: 20px; cursor: pointer;">
+                    <div>
+                        <strong style="color: var(--green-dark);">Reviews</strong>
+                        <p style="margin: 0; color: var(--gray-600); font-size: 0.875rem;">Get notified when someone reviews your session</p>
+                    </div>
+                </label>
+                
+                <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; padding: 1rem; background: var(--green-bg); border-radius: 8px;">
+                    <input type="checkbox" id="notifAnnouncements" checked onchange="saveNotificationPrefs()" style="width: 20px; height: 20px; cursor: pointer;">
+                    <div>
+                        <strong style="color: var(--green-dark);">Announcements</strong>
+                        <p style="margin: 0; color: var(--gray-600); font-size: 0.875rem;">Get notified about new system announcements</p>
+                    </div>
+                </label>
+            </div>
+            
+            <div id="notifSaveStatus" style="margin-top: 1rem; display: none;"></div>
+        </div>
+    </main>
+
+    <script src="/js/app.js"></script>
+    <script src="/js/blocks.js"></script>
+    <script src="/js/profile.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            populateBlockSelect(document.getElementById('blockName'));
+        });
+    </script>
+</body>
+</html>
+

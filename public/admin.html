@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - SkillSwap</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/" class="nav-brand">📚 SkillSwap</a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="/dashboard.html">Dashboard</a></li>
+                <li><a href="/admin.html">Admin</a></li>
+                <li><a href="#" onclick="logout()">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h1 style="margin-bottom: 2rem;">⚙️ Admin Dashboard</h1>
+
+        <div id="alertContainer"></div>
+
+        <!-- Statistics Cards -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card primary">
+                <div class="stat-label">Total Users</div>
+                <div class="stat-value" id="totalUsers">-</div>
+            </div>
+            <div class="stat-card success">
+                <div class="stat-label">Total Tutors</div>
+                <div class="stat-value" id="totalTutors">-</div>
+            </div>
+            <div class="stat-card info">
+                <div class="stat-label">Total Sessions</div>
+                <div class="stat-value" id="totalSessions">-</div>
+            </div>
+            <div class="stat-card success">
+                <div class="stat-label">Completed Sessions</div>
+                <div class="stat-value" id="completedSessions">-</div>
+            </div>
+            <div class="stat-card info">
+                <div class="stat-label">Total Skills</div>
+                <div class="stat-value" id="totalSkills">-</div>
+            </div>
+        </div>
+
+        <!-- Analytics PDF Download -->
+        <div class="card" style="margin-bottom: 2rem; background: linear-gradient(135deg, var(--green-bg) 0%, var(--teal-bg) 100%);">
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <h3 style="margin: 0 0 0.5rem 0; color: var(--green-dark);">📊 Analytics Report</h3>
+                        <p style="margin: 0; color: var(--gray-600); font-size: 0.9rem;">Download a comprehensive analytics report as PDF</p>
+                    </div>
+                </div>
+                <div style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end;">
+                    <div class="form-group" style="margin: 0; flex: 1; min-width: 150px;">
+                        <label for="reportStartDate" class="form-label" style="font-size: 0.875rem;">Start Date</label>
+                        <input type="date" id="reportStartDate" class="form-control">
+                    </div>
+                    <div class="form-group" style="margin: 0; flex: 1; min-width: 150px;">
+                        <label for="reportEndDate" class="form-label" style="font-size: 0.875rem;">End Date</label>
+                        <input type="date" id="reportEndDate" class="form-control">
+                    </div>
+                    <div class="form-group" style="margin: 0; flex: 1; min-width: 150px;">
+                        <label for="reportType" class="form-label" style="font-size: 0.875rem;">Report Type</label>
+                        <select id="reportType" class="form-control">
+                            <option value="full">Full Report</option>
+                            <option value="users">Users Only</option>
+                            <option value="sessions">Sessions Only</option>
+                            <option value="skills">Skills Only</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="downloadAnalyticsReport()" style="padding: 0.75rem 1.5rem; height: fit-content;">
+                        📥 Download PDF
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearReportDateRange()" style="padding: 0.75rem 1rem; height: fit-content;">
+                        Clear Dates
+                    </button>
+                </div>
+                <p style="margin: 0; color: var(--gray-500); font-size: 0.8rem;">Leave dates empty for all-time report</p>
+            </div>
+        </div>
+
+        <!-- Tabs for different admin sections -->
+        <div style="margin-top: 2rem; border-bottom: 2px solid var(--gray-200);">
+            <button class="btn btn-primary" onclick="showTab('users')" id="tabUsers" style="border-radius: 12px 12px 0 0; margin-right: 0.5rem;">👥 Users</button>
+            <button class="btn btn-secondary" onclick="showTab('skills')" id="tabSkills" style="border-radius: 12px 12px 0 0; margin-right: 0.5rem;">🎓 Skills</button>
+            <button class="btn btn-secondary" onclick="showTab('degrees')" id="tabDegrees" style="border-radius: 12px 12px 0 0; margin-right: 0.5rem;">📜 Degrees</button>
+            <button class="btn btn-secondary" onclick="showTab('announcements')" id="tabAnnouncements" style="border-radius: 12px 12px 0 0; margin-right: 0.5rem;">📢 Announcements</button>
+            <button class="btn btn-secondary" onclick="showTab('reports')" id="tabReports" style="border-radius: 12px 12px 0 0;">🚩 Reports</button>
+        </div>
+
+        <!-- Users Tab -->
+        <div id="tabContentUsers" class="tab-content">
+            <div class="card" style="margin-top: 0;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3 class="card-title" style="margin: 0;">👥 All Users</h3>
+                    <div style="position: relative; width: 300px;">
+                        <input type="text" id="adminUserSearch" class="form-control" placeholder="Search users by email..." oninput="handleAdminUserSearch(this.value)">
+                    </div>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: var(--green-bg); border-bottom: 2px solid var(--green-primary);">
+                                <th style="padding: 1rem; text-align: left;">ID</th>
+                                <th style="padding: 1rem; text-align: left;">Email</th>
+                                <th style="padding: 1rem; text-align: left;">Block</th>
+                                <th style="padding: 1rem; text-align: center;">Tutor</th>
+                                <th style="padding: 1rem; text-align: center;">Points</th>
+                                <th style="padding: 1rem; text-align: center;">Status</th>
+                                <th style="padding: 1rem; text-align: left;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <tr>
+                                <td colspan="7" style="padding: 2rem; text-align: center; color: var(--gray-500);">
+                                    Loading users...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Skills Tab -->
+        <div id="tabContentSkills" class="tab-content" style="display: none;">
+            <div class="card" style="margin-top: 0;">
+                <h3 class="card-title">🎓 Create New Skill</h3>
+                <form id="createSkillForm">
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label for="skillName" class="form-label">Skill Name</label>
+                                <input type="text" id="skillName" class="form-control" placeholder="e.g., Advanced Calculus" required>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label for="skillCategory" class="form-label">Category</label>
+                                <input type="text" id="skillCategory" class="form-control" placeholder="e.g., Academic, Technical, Language" required>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Skill</button>
+                </form>
+            </div>
+
+            <div class="card" style="margin-top: 2rem;">
+                <h3 class="card-title">🎓 All Skills</h3>
+                <div id="skillsList">
+                    <p style="text-align: center; color: var(--gray-500); padding: 2rem;">Loading skills...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Degrees Tab -->
+        <div id="tabContentDegrees" class="tab-content" style="display: none;">
+            <div class="card" style="margin-top: 0;">
+                <h3 class="card-title">📜 Create New Degree</h3>
+                <form id="createDegreeForm">
+                    <div class="form-group">
+                        <label for="degreeName" class="form-label">Degree Name</label>
+                        <input type="text" id="degreeName" class="form-control" placeholder="e.g., Computer Science" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Degree</button>
+                </form>
+            </div>
+
+            <div class="card" style="margin-top: 2rem;">
+                <h3 class="card-title">📜 All Degrees</h3>
+                <div id="degreesList">
+                    <p style="text-align: center; color: var(--gray-500); padding: 2rem;">Loading degrees...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Tab -->
+        <div id="tabContentReports" class="tab-content" style="display: none;">
+            <div class="card">
+                <h3 class="card-title">🚩 User Reports</h3>
+                <div style="overflow-x: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Reporter</th>
+                                <th>Reported User</th>
+                                <th>Reason</th>
+                                <th>Description</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reportsTableBody">
+                            <tr>
+                                <td colspan="8" class="text-center text-gray">
+                                    Loading reports...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Announcements Tab -->
+        <div id="tabContentAnnouncements" class="tab-content" style="display: none;">
+            <div class="card" style="margin-top: 0;">
+                <h3 class="card-title">📢 Create Announcement</h3>
+                <form id="createAnnouncementForm">
+                    <div class="form-group">
+                        <label for="announcementTitle" class="form-label">Title</label>
+                        <input type="text" id="announcementTitle" class="form-control" placeholder="Announcement title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="announcementContent" class="form-label">Content</label>
+                        <textarea id="announcementContent" class="form-control" rows="5" placeholder="Announcement content..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Post Announcement</button>
+                </form>
+            </div>
+
+            <div class="card" style="margin-top: 2rem;">
+                <h3 class="card-title">📢 All Announcements</h3>
+                <div id="announcementsList">
+                    <p style="text-align: center; color: var(--gray-500); padding: 2rem;">Loading announcements...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sessions Table -->
+        <div class="card" style="margin-top: 2rem;">
+            <h3 class="card-title">📚 Recent Sessions</h3>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: var(--green-bg); border-bottom: 2px solid var(--green-primary);">
+                            <th style="padding: 1rem; text-align: left;">ID</th>
+                            <th style="padding: 1rem; text-align: left;">Tutor</th>
+                            <th style="padding: 1rem; text-align: left;">Tutee</th>
+                            <th style="padding: 1rem; text-align: center;">Status</th>
+                            <th style="padding: 1rem; text-align: left;">Scheduled</th>
+                            <th style="padding: 1rem; text-align: left;">Created</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sessionsTableBody">
+                        <tr>
+                            <td colspan="6" style="padding: 2rem; text-align: center; color: var(--gray-500);">
+                                Loading sessions...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/app.js"></script>
+    <script src="/js/admin.js"></script>
+</body>
+</html>
+

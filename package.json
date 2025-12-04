@@ -1,0 +1,28 @@
+{
+  "name": "skillswap",
+  "version": "1.0.0",
+  "description": "Peer-to-peer tutoring web application for university residents",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node --watch app.js"
+  },
+  "keywords": [
+    "tutoring",
+    "skill-swap",
+    "university"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.3.1",
+    "nodemailer": "^7.0.10",
+    "pdfkit": "^0.17.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

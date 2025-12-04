@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - SkillSwap</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/" class="nav-brand">📚 SkillSwap</a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="/dashboard.html">Dashboard</a></li>
+                <li><a href="/search.html">Search Tutors</a></li>
+                <li><a href="/profile.html">My Profile</a></li>
+                <li><a href="#" onclick="logout()">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h1 style="margin-bottom: 2rem;">📊 Dashboard</h1>
+        
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card primary">
+                <div class="stat-label">Points Balance</div>
+                <div class="stat-value" id="pointsBalance">-</div>
+            </div>
+            <div class="stat-card success">
+                <div class="stat-label">Upcoming Sessions</div>
+                <div class="stat-value" id="upcomingCount">-</div>
+            </div>
+            <div class="stat-card info">
+                <div class="stat-label">Account Type</div>
+                <div class="stat-value" id="accountType" style="font-size: 1.5rem;">-</div>
+            </div>
+        </div>
+
+        <!-- Pending Session Requests (Tutors Only) -->
+        <div id="pendingRequestsSection" class="card" style="display: none; margin-bottom: 2rem; border-left: 4px solid var(--yellow-primary);">
+            <h3 class="card-title">⏳ Pending Session Requests</h3>
+            <div id="pendingRequestsContainer">
+                <p style="text-align: center; color: var(--gray-500); padding: 1rem;">Loading...</p>
+            </div>
+        </div>
+
+        <!-- Session Filters -->
+        <div class="card" style="margin-bottom: 1.5rem;">
+            <div style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end;">
+                <div class="form-group" style="margin: 0; flex: 1; min-width: 150px;">
+                    <label for="filterStatus" class="form-label" style="font-size: 0.875rem;">Filter by Status</label>
+                    <select id="filterStatus" class="form-control" onchange="applyFilters()">
+                        <option value="">All Statuses</option>
+                        <option value="requested">Requested</option>
+                        <option value="scheduled">Scheduled</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin: 0; flex: 1; min-width: 150px;">
+                    <label for="filterStartDate" class="form-label" style="font-size: 0.875rem;">From Date</label>
+                    <input type="date" id="filterStartDate" class="form-control" onchange="applyFilters()">
+                </div>
+                <div class="form-group" style="margin: 0; flex: 1; min-width: 150px;">
+                    <label for="filterEndDate" class="form-label" style="font-size: 0.875rem;">To Date</label>
+                    <input type="date" id="filterEndDate" class="form-control" onchange="applyFilters()">
+                </div>
+                <button class="btn btn-secondary" onclick="clearFilters()" style="padding: 0.5rem 1rem; height: fit-content;">
+                    Clear Filters
+                </button>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-6">
+                <div class="card" style="height: 100%; display: flex; flex-direction: column;">
+                    <h3 class="card-title">Upcoming Sessions</h3>
+                    <ul class="list-group" id="upcomingSessions" style="flex: 1; min-height: 200px;">
+                        <li class="list-group-item">Loading...</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card" style="height: 100%; display: flex; flex-direction: column;">
+                    <h3 class="card-title">Recent Sessions</h3>
+                    <ul class="list-group" id="recentSessions" style="flex: 1; min-height: 200px; max-height: 400px; overflow-y: auto;">
+                        <li class="list-group-item">Loading...</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 class="card-title">📢 Announcements</h3>
+            <div id="announcementsContainer">
+                <p style="text-align: center; color: var(--gray-500); padding: 1rem;">Loading announcements...</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 class="card-title">Quick Actions</h3>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <a href="/search.html" class="btn btn-primary">Search Tutors</a>
+                <a href="/profile.html" class="btn btn-success">Edit Profile</a>
+                <a href="#" onclick="logout()" class="btn btn-secondary">Logout</a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Rating Modal -->
+    <div id="ratingModal" class="modal">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="margin: 0; color: var(--green-dark);">⭐ Rate Session</h2>
+                <button onclick="document.getElementById('ratingModal').classList.remove('active')" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--gray-500);">&times;</button>
+            </div>
+            <form id="ratingForm" onsubmit="submitRating(event)">
+                <input type="hidden" id="ratingSessionId">
+                <input type="hidden" id="ratingValue">
+                <div class="form-group">
+                    <label class="form-label">Rating</label>
+                    <div id="ratingStars" style="margin-bottom: 1rem;"></div>
+                </div>
+                <div class="form-group">
+                    <label for="ratingComment" class="form-label">Comment (Optional)</label>
+                    <textarea id="ratingComment" class="form-control" rows="4" placeholder="Share your experience..."></textarea>
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" onclick="document.getElementById('ratingModal').classList.remove('active')" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Submit Rating</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script src="/js/dashboard.js"></script>
+    <script>
+        // Initialize star rating on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            renderStarRating(0);
+        });
+    </script>
+</body>
+</html>
+
